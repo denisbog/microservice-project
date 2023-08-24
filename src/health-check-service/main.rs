@@ -24,10 +24,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         let username: String = Uuid::new_v4().to_string(); // Create random username using new_v4()
         let password: String = Uuid::new_v4().to_string(); // Create random password using new_v4()
-        let mut signup = SignUpRequest::default();
-
-        signup.username = username.clone();
-        signup.password = password.clone();
+        let signup = SignUpRequest {
+            username: username.clone(),
+            password: password.clone(),
+        };
 
         let request: Request<SignUpRequest> = Request::new(signup); // Create a new `SignUpRequest`.
 
@@ -38,9 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "SIGN UP RESPONSE STATUS: {:?}",
             StatusCode::from_i32(response.into_inner().status_code)
         );
-        let mut signin = SignInRequest::default();
-        signin.username = username;
-        signin.password = password;
+        let signin = SignInRequest { username, password };
         // ---------------------------------------------
         let request: Request<SignInRequest> = Request::new(signin); // Create a new `SignInRequest`.
 
@@ -53,8 +51,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
 
         // ---------------------------------------------
-        let mut signout = SignOutRequest::default();
-        signout.session_token = response.session_token;
+        let signout = SignOutRequest {
+            session_token: response.session_token,
+        };
         let request: Request<SignOutRequest> = Request::new(signout); // Create a new `SignOutRequest`.
 
         let response: Response<SignOutResponse> = client.sign_out(request).await.unwrap(); // Make a sign out request. Propagate any errors.

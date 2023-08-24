@@ -49,12 +49,7 @@ impl Auth for AuthService {
             .lock()
             .unwrap()
             .get_user_uuid(req.username, req.password);
-        let reply = if result.is_none() {
-            let mut reply = SignInResponse::default();
-            reply.set_status_code(StatusCode::Failure);
-            reply
-        } else {
-            let user_uuid = result.unwrap();
+        let reply = if let Some(user_uuid) = result {
             // Match on `result`. If `result` is `None` return a SignInResponse with a the `status_code` set to `Failure`
             // and `user_uuid`/`session_token` set to empty strings.
             let session_token: String = self
@@ -62,10 +57,14 @@ impl Auth for AuthService {
                 .lock()
                 .unwrap()
                 .create_session(&user_uuid); // Create new session using `sessions_service`. Panic if the lock is poisoned.
-            let mut reply = SignInResponse::default(); // Create a `SignInResponse` with `status_code` set to `Success`
-            reply.session_token = session_token;
-            reply.user_uuid = user_uuid;
-            reply.set_status_code(StatusCode::Success);
+            SignInResponse {
+                session_token,
+                user_uuid,
+                status_code: StatusCode::Success.into(),
+            } // Create a `SignInResponse` with `status_code` set to `Success`
+        } else {
+            let mut reply = SignInResponse::default();
+            reply.set_status_code(StatusCode::Failure);
             reply
         };
         Ok(Response::new(reply))

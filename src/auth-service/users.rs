@@ -29,7 +29,7 @@ pub struct UsersImpl {
 impl Users for UsersImpl {
     fn create_user(&mut self, username: String, password: String) -> Result<(), String> {
         let existing_user = self.username_to_user.get(&username.clone());
-        if let Some(_) = existing_user {
+        if existing_user.is_some() {
             return Err(format!("User {} already exists", username));
         }
 
@@ -67,12 +67,9 @@ impl Users for UsersImpl {
     }
 
     fn delete_user(&mut self, user_uuid: String) {
-        match self.uuid_to_user.get(&user_uuid) {
-            Some(user) => {
-                self.username_to_user.remove(&user.username);
-                self.uuid_to_user.remove(&user_uuid);
-            }
-            None => {}
+        if let Some(user) = self.uuid_to_user.get(&user_uuid) {
+            self.username_to_user.remove(&user.username);
+            self.uuid_to_user.remove(&user_uuid);
         };
     }
 }
