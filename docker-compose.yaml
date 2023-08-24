@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   health-check:
-    image: letsgetrusty/health-check
+    image: denisbog/health-check
     build:
       context: .
       dockerfile: Dockerfile-health
@@ -10,7 +10,7 @@ services:
       auth:
         condition: service_started
   auth:
-    image: letsgetrusty/auth
+    image: denisbog/auth
     build:
       context: .
       dockerfile: Dockerfile-auth
